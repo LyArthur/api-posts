@@ -38,7 +38,8 @@ security:
         # - { path: ^/profile, roles: ROLE_USER }
       - { path: ^/api/login, roles: PUBLIC_ACCESS }
       #- { path: ^/api/posts, roles: ROLE_ADMIN, methods: ["GET"] }
-      - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+      #- { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+      - { path: ^/api,       roles: PUBLIC_ACCESS }
 
 when@test:
     security:

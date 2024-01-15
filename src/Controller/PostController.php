@@ -45,7 +45,11 @@ class PostController extends AbstractController
                           Request             $request,
                           SerializerInterface $serializer): Response {
         //Récupère tous les posts dans la base de données
-        $posts = $repository->findBy(["user" => $this->getUser()]);
+        if ($this->getUser()){
+            $posts = $repository->findBy(["user" => $this->getUser()]);
+        } else {
+            $posts = $repository->findAll();
+        }
 
         //Normalisation des posts
         //$postsNormalized = $normalizer->normalize($posts);
