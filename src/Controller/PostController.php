@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Categorie;
 use App\Entity\Post;
+use App\Repository\UserRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use App\Repository\PostRepository;
@@ -40,9 +41,11 @@ class PostController extends AbstractController
         ]
     )]
     public function index(PostRepository      $repository,
+                          UserRepository $userRepository,
+                          Request             $request,
                           SerializerInterface $serializer): Response {
         //Récupère tous les posts dans la base de données
-        $posts = $repository->findAll();
+        $posts = $repository->findBy(["user" => $this->getUser()]);
 
         //Normalisation des posts
         //$postsNormalized = $normalizer->normalize($posts);
@@ -126,6 +129,7 @@ class PostController extends AbstractController
         //Décode le JSON en tableau PHP
         $post = $serializer->deserialize($body, Post::class, 'json');
         $categorie = $entityManager->getRepository(Categorie::class)->find($parameters['categorie_id']);
+        $post->setUser($this->getUser());
         $post->setCreatedAt(new \DateTime());
         $post->setCategorie($categorie);
         $entityManager->persist($post);
@@ -138,6 +142,9 @@ class PostController extends AbstractController
     #[Route('/posts/{id}', name: 'api_post_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(PostRepository $repository, EntityManagerInterface $entityManager, int $id): Response {
         $post = $repository->find($id);
+        if(!$post->getUser() === $this->getUser()) {
+            return new Response(null, Response::HTTP_UNAUTHORIZED,);
+        }
         $entityManager->remove($post);
         $entityManager->flush();
         return new Response(null, Response::HTTP_NO_CONTENT,);

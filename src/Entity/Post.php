@@ -31,6 +31,18 @@ class Post
     #[ORM\ManyToOne(inversedBy: 'posts')]
     private ?Categorie $Categorie = null;
 
+    #[Groups(['list_posts','single_post'])]
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    private ?User $user = null;
+
+    public function getUser(): ?User {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): void {
+        $this->user = $user;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

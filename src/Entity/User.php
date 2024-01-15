@@ -3,9 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -14,6 +17,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[Groups(['list_posts','single_post'])]
 
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
@@ -24,9 +29,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
+    private Collection $posts ;
     #[ORM\Column]
     private ?string $password = null;
 
+    public function __construct()
+    {
+        $this->posts = new ArrayCollection();
+    }
+
+    public function getPosts(): Collection {
+        return $this->posts;
+    }
+
+    public function setPosts(Collection $posts): void {
+        $this->posts = $posts;
+    }
     public function getId(): ?int
     {
         return $this->id;
